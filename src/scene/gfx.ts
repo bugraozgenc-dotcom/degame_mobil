@@ -8,9 +8,13 @@ export const GFX_LABEL: Record<GfxMode, string> = { auto: 'Grafik: Otomatik', hi
 export const GFX_DESC: Record<GfxMode, string> = {
   auto: 'Kare hızı düşerse kalite kendiliğinden azalır',
   high: 'Tam çözünürlük, gölgeler ve ayrıntı katmanı',
-  low: 'Düşük çözünürlük, az gölge, ayrıntı yok — zayıf bilgisayarlar için',
+  low: 'Düşük çözünürlük, gölge ve ayrıntı yok — telefonlar için önerilir',
 };
 const KEY = 'desecure-gfx';
+/** telefon / tablet: dokunmatik birincil girdi (fare yok) ya da dar ekran */
+export const IS_MOBILE =
+  typeof window !== 'undefined' &&
+  (window.matchMedia?.('(pointer: coarse)').matches || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || Math.min(screen.width, screen.height) <= 820);
 function load(): GfxMode {
   try {
     const v = localStorage.getItem(KEY);
@@ -18,7 +22,8 @@ function load(): GfxMode {
   } catch {
     /* depolama yok */
   }
-  return 'auto';
+  // mobil: baştan hafif mod (gölge yok, piksel oranı 1); kullanıcı menüden Yüksek seçebilir
+  return IS_MOBILE ? 'low' : 'auto';
 }
 
 interface GfxState {
@@ -31,7 +36,7 @@ interface GfxState {
   cycle: () => void;
   setLow: (v: boolean) => void;
 }
-const eff = (mode: GfxMode, autoLow: boolean) => mode === 'low' || (mode === 'auto' && autoLow);
+const eff = (mode: GfxMode, autoLow: boolean) => mode === 'low' || (mode === 'auto' && (autoLow || IS_MOBILE));
 export const useGfx = create<GfxState>((set, get) => ({
   mode: load(),
   autoLow: false,

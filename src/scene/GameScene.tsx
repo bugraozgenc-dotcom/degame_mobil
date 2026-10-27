@@ -13,7 +13,7 @@ import { Terrain } from './Terrain';
 import { SoundWatcher } from './SoundWatcher';
 import { Sky } from './Sky';
 import { Props } from './Props';
-import { sampleFrame, useGfx } from './gfx';
+import { IS_MOBILE, sampleFrame, useGfx } from './gfx';
 
 // GameScene — izometrik 3D sahne
 
@@ -177,7 +177,7 @@ function Lighting() {
   useEffect(() => {
     const l = sun.current;
     if (!l) return;
-    const size = low ? 1024 : 2048;
+    const size = low ? 512 : IS_MOBILE ? 1024 : 2048;
     if (l.shadow.mapSize.x !== size) {
       l.shadow.mapSize.set(size, size);
       l.shadow.map?.dispose();
@@ -209,6 +209,23 @@ function Lighting() {
       />
     </>
   );
+}
+
+/** gölgeler açılıp kapanınca (Grafik modu) malzemeler yeniden derlensin */
+function ShadowToggle() {
+  const low = useGfx((s) => s.low);
+  const { gl, scene } = useThree();
+  useEffect(() => {
+    gl.shadowMap.enabled = !low;
+    gl.shadowMap.needsUpdate = true;
+    scene.traverse((o) => {
+      const m = (o as THREE.Mesh).material as THREE.Material | THREE.Material[] | undefined;
+      if (!m) return;
+      if (Array.isArray(m)) m.forEach((x) => (x.needsUpdate = true));
+      else m.needsUpdate = true;
+    });
+  }, [low, gl, scene]);
+  return null;
 }
 
 function Rain() {
@@ -346,11 +363,11 @@ export function GameScene() {
   return (
     <Canvas
       key={`${map.id}-${level.id}`}
-      shadows
-      dpr={low ? 1 : [1, 1.5]}
+      shadows={!low}
+      dpr={low ? 1 : IS_MOBILE ? [1, 1.25] : [1, 1.5]}
       style={{ isolation: 'isolate' }} /* sahne içi HTML etiketleri arayüz panellerinin üstüne çıkmasın */
       camera={{ fov: 32, near: 1, far: 700, position: [d * Math.sin(pol) * Math.sin(az), d * Math.cos(pol), d * Math.sin(pol) * Math.cos(az)] }}
-      gl={{ antialias: true, powerPreference: 'high-performance' }}
+      gl={{ antialias: !IS_MOBILE, powerPreference: 'high-performance' }}
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.12;
@@ -363,6 +380,7 @@ export function GameScene() {
       }}
     >
       <Lighting />
+      <ShadowToggle />
       <Sky />
       <IsometricCamera />
       <Terrain />

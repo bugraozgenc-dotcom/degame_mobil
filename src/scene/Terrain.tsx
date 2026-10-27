@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import type { ThreeEvent } from '@react-three/fiber';
 import type { MapData } from '../game/types';
 import { cellAt, mulberry32 } from '../game/world/grid';
-import { useGame } from '../game/store';
+import { MOBILE_PLACE, useGame } from '../game/store';
 import { makeGridGeometry } from './materials';
 
 // TerrainManager (render) — arazi, yollar ve fare etkileşimi
@@ -198,6 +198,11 @@ export function Terrain() {
   };
   const onUp = (e: ThreeEvent<PointerEvent>) => {
     const st = useGame.getState();
+    if (MOBILE_PLACE) {
+      // mobil: parmak kalkınca hayalet olduğu yerde kalır, ✓ ile onaylanır
+      if (st.placing?.fromShopDrag) useGame.setState({ placing: { ...st.placing, fromShopDrag: false } });
+      return;
+    }
     if (st.placing?.fromShopDrag) {
       st.setHover(e.point.x, e.point.z);
       st.commitPlace();
@@ -208,7 +213,7 @@ export function Terrain() {
     const st = useGame.getState();
     if (st.placing) {
       st.setHover(e.point.x, e.point.z);
-      st.commitPlace();
+      if (!MOBILE_PLACE) st.commitPlace();
       return;
     }
     if (st.phase === 'sim' && st.ptzAimId) {

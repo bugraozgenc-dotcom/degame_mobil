@@ -12,6 +12,30 @@ import { SimulationEngine } from './systems/SimulationEngine';
 import type { Device, EquipmentType, LevelDef, MapData } from './types';
 import { cellX, fenceNorth, fenceWorld, idx, inBounds } from './world/grid';
 import { getMap } from './world/maps';
+import { IS_MOBILE } from '../scene/gfx';
+
+/** Mobil (Clash of Clans tarzı) yerleştirme: hayalet parmakla sürüklenir, ✓ ile onaylanır; haritaya dokunmak yerleştirmez */
+export const MOBILE_PLACE = IS_MOBILE;
+
+/** çit hattına mıknatıs: en yakın çit hücresinin (nav === 2) merkezi; yoksa null */
+export function snapToFence(map: MapData, x: number, z: number, maxDist = Infinity): { x: number; z: number } | null {
+  const N = map.N;
+  let best = -1;
+  let bd = maxDist * maxDist;
+  for (let j = 0; j < N; j++)
+    for (let i = 0; i < N; i++) {
+      const c = j * N + i;
+      if (map.nav[c] !== 2) continue;
+      const cx = cellX(map, i), cz = cellX(map, j);
+      const d = (cx - x) * (cx - x) + (cz - z) * (cz - z);
+      if (d < bd) {
+        bd = d;
+        best = c;
+      }
+    }
+  if (best < 0) return null;
+  return { x: cellX(map, best % N), z: cellX(map, Math.floor(best / N)) };
+}
 
 export type Phase = 'menu' | 'planning' | 'sim' | 'result';
 
@@ -280,6 +304,14 @@ export const useGame = create<State>((set, get) => {
         const dx = x - p.x, dz = z - p.z;
         if (Math.hypot(dx, dz) > 0.6) set({ placing: { ...p, yaw: Math.atan2(dz, dx) } });
         return;
+      }
+      if (MOBILE_PLACE && EXPO.on && isFenceOnly(p.type)) {
+        // mobil: bullet kamera en yakın çit hücresine yapışır
+        const sn = snapToFence(map, x, z, p.hasHover ? 14 : Infinity); // ilk belirişte en yakın çite git
+        if (sn) {
+          x = sn.x;
+          z = sn.z;
+        }
       }
       const fp = EQUIPMENT[p.type].footprint;
       const i = Math.floor(x + map.N / 2 - (fp - 1) / 2);

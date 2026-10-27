@@ -203,13 +203,13 @@ body {
     top: calc(6px + var(--sat));
     left: calc(6px + var(--sal));
     right: calc(6px + var(--sar));
-    height: 44px;
+    height: 52px;
     gap: 8px;
     padding: 0 8px;
-    border-radius: 12px;
+    border-radius: 14px;
   }
   .m .f-top .f-logo {
-    height: 18px !important;
+    height: 22px !important;
   }
   .m .f-stepper,
   .m .f-chip.player,
@@ -222,27 +222,27 @@ body {
     gap: 5px;
   }
   .m .f-mt {
-    font-size: 13px;
+    font-size: 14px;
   }
   .m .f-badge {
-    width: 26px;
-    height: 26px;
-    font-size: 11px;
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
   }
   .m .f-top-right {
     margin-left: auto;
     gap: 6px;
   }
   .m .f-chip {
-    height: 32px;
-    padding: 0 9px;
-    font-size: 13px;
-    gap: 5px;
-    border-radius: 9px;
+    height: 40px;
+    padding: 0 11px;
+    font-size: 15px;
+    gap: 6px;
+    border-radius: 11px;
   }
   .m .f-chip svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
   }
   .m .f-chip.f-gfx {
     display: none;
@@ -250,16 +250,17 @@ body {
 
   /* kapsama kutusu (fuar modunda sol panelde yalnızca bu var) */
   .m .f-side {
-    top: calc(56px + var(--sat));
+    top: calc(64px + var(--sat));
     left: calc(6px + var(--sal));
-    width: 190px;
+    width: 210px;
     padding: 8px 10px;
     gap: 6px;
     border-radius: 12px;
-    font-size: 12px;
+    font-size: 13px;
   }
   .m .f-side .f-cov-row {
-    font-size: 12px;
+    font-size: 13px;
+    white-space: nowrap;
   }
   .m .f-side .f-legend {
     font-size: 10px;
@@ -268,12 +269,19 @@ body {
   .m .f-side .f-obj {
     display: none;
   }
+  .m.m-placing .f-side,
+  .m.m-placing .f-bonus,
+  .m.m-placing .shop-wrap,
+  .m.m-placing .f-go,
+  .m.m-placing .f-insp {
+    display: none !important;
+  }
 
   /* bonus ürün paneli */
   .m .f-bonus {
-    top: calc(56px + var(--sat));
+    top: calc(64px + var(--sat));
     right: calc(6px + var(--sar));
-    width: 240px;
+    width: 270px;
     padding: 8px;
     gap: 6px;
     border-radius: 12px;
@@ -284,7 +292,8 @@ body {
     width: auto;
   }
   .m .f-bonus .fb-head {
-    font-size: 12px;
+    font-size: 13px;
+    min-height: 40px;
     gap: 6px;
   }
   .m .f-bonus .fb-sub {
@@ -309,7 +318,7 @@ body {
   /* ekipman çubuğu */
   .m .shop-wrap {
     left: calc(6px + var(--sal));
-    right: calc(150px + var(--sar));
+    right: calc(176px + var(--sar));
     bottom: calc(6px + var(--sab));
     transform: none;
     min-width: 0;
@@ -330,24 +339,24 @@ body {
     display: none;
   }
   .m .shop .shop-item {
-    width: 70px !important;
-    height: 78px !important;
+    width: 86px !important;
+    height: 98px !important;
     padding: 4px 3px 4px;
     gap: 2px !important;
     border-radius: 9px;
     justify-content: flex-start;
   }
   .m .shop .si-icon {
-    width: 28px !important;
-    height: 28px !important;
-    border-radius: 8px;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 10px;
   }
   .m .shop .si-icon svg {
-    width: 20px !important;
-    height: 20px !important;
+    width: 26px !important;
+    height: 26px !important;
   }
   .m .shop .si-name {
-    font-size: 9.5px !important;
+    font-size: 11px !important;
     line-height: 1.1 !important;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -355,7 +364,7 @@ body {
     overflow: hidden;
   }
   .m .shop .si-cost {
-    font-size: 10px !important;
+    font-size: 12px !important;
   }
   .m .shop-item .si-count {
     font-size: 10px;
@@ -367,39 +376,40 @@ body {
   .m .f-go {
     right: calc(6px + var(--sar));
     bottom: calc(6px + var(--sab));
-    padding: 10px 14px;
+    padding: 14px 14px;
     gap: 8px;
-    font-size: 13px;
-    border-radius: 12px;
-    width: 138px;
+    font-size: 15px;
+    border-radius: 14px;
+    width: 164px;
+    min-height: 60px;
   }
   .m .f-go small {
     display: none;
   }
   .m .f-go svg {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
   }
 
   /* seçili cihaz */
   .m .f-insp {
     left: calc(6px + var(--sal));
-    bottom: calc(88px + var(--sab));
-    padding: 6px 6px 6px 10px;
+    bottom: calc(118px + var(--sab));
+    padding: 6px 6px 6px 12px;
     gap: 6px;
-    border-radius: 12px;
-    font-size: 12px;
+    border-radius: 14px;
+    font-size: 13px;
   }
   .m .f-insp .fi-t b {
-    font-size: 12px;
+    font-size: 14px;
   }
   .m .f-insp .fi-t span {
-    font-size: 10px;
+    font-size: 11px;
   }
   .m .f-insp button {
-    height: 32px;
-    padding: 0 10px;
-    font-size: 12px;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 14px;
   }
 
   /* savunma: izleme notu, taktik barı */
@@ -410,7 +420,7 @@ body {
     max-width: min(56vw, 420px);
     padding: 8px 12px;
     gap: 8px;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.35;
     border-radius: 12px;
   }
@@ -419,7 +429,7 @@ body {
     top: auto;
     bottom: calc(6px + var(--sab));
     max-width: min(60vw, 440px);
-    font-size: 12px;
+    font-size: 13px;
     padding: 8px 12px;
   }
   .m .f-watch svg {
@@ -463,11 +473,11 @@ body {
     border-radius: 16px;
   }
   .m .f-card h2 {
-    font-size: 20px;
+    font-size: 22px;
   }
   .m .f-card p,
   .m .f-card .f-note {
-    font-size: 12.5px;
+    font-size: 14px;
     line-height: 1.45;
   }
   .m .f-card .f-kicker {
@@ -486,19 +496,20 @@ body {
     height: 18px;
   }
   .m .f-cta {
-    padding: 10px 18px;
-    font-size: 15px;
+    padding: 12px 20px;
+    font-size: 17px;
+    min-height: 48px;
     border-radius: 12px;
     gap: 8px;
   }
   .m .f-cta.sm {
-    padding: 10px 16px;
-    font-size: 14px;
+    padding: 11px 18px;
+    font-size: 16px;
   }
   .m .f-ghost {
-    height: 40px;
-    padding: 0 14px;
-    font-size: 13px;
+    height: 46px;
+    padding: 0 16px;
+    font-size: 15px;
     border-radius: 10px;
   }
 
@@ -507,15 +518,15 @@ body {
     height: 20px !important;
   }
   .m .f-register .f-mode-tabs button {
-    height: 36px;
-    font-size: 12px;
+    height: 42px;
+    font-size: 14px;
   }
   .m .f-register .f-fields label {
     font-size: 11px;
   }
   .m .f-register input {
-    height: 40px;
-    font-size: 15px;
+    height: 46px;
+    font-size: 17px;
   }
   .m .f-reg-actions {
     gap: 8px;
@@ -539,7 +550,7 @@ body {
     display: none;
   }
   .m .f-select h2 {
-    font-size: 18px;
+    font-size: 20px;
   }
   .m .f-select-body {
     grid-template-columns: 1fr;
@@ -566,8 +577,8 @@ body {
     font-size: 10px;
   }
   .m .f-sum-chip {
-    font-size: 11px;
-    height: 26px;
+    font-size: 12px;
+    height: 30px;
     padding: 0 8px;
   }
   .m .f-sum-note {
@@ -595,11 +606,11 @@ body {
     -webkit-overflow-scrolling: touch;
   }
   .m .f-mission-card {
-    flex: 0 0 220px;
+    flex: 0 0 240px;
     scroll-snap-align: start;
   }
   .m .f-missions .fm-art {
-    height: 96px;
+    height: 104px;
   }
   .m .f-missions .fm-desc {
     display: -webkit-box;
@@ -620,8 +631,8 @@ body {
     font-size: 10px;
   }
   .m .f-pickers button {
-    height: 38px;
-    font-size: 13px;
+    height: 44px;
+    font-size: 15px;
   }
 
   /* sonuç */
@@ -636,7 +647,7 @@ body {
     border-radius: 16px;
   }
   .m .f-res-title {
-    font-size: 20px;
+    font-size: 22px;
   }
   .m .f-res-actions {
     position: sticky;
@@ -668,8 +679,7 @@ body {
     font-size: 12px;
   }
   .m .mode-banner {
-    top: calc(56px + var(--sat));
-    font-size: 12px;
+    display: none; /* yerleştirme çubuğu aynı bilgiyi verir */
   }
 }
 
@@ -687,5 +697,106 @@ body {
   }
   .m .shop-item {
     height: 64px;
+  }
+}
+
+/* ───────── mobil yerleştirme çubuğu (✓ / ✗) ───────── */
+.m-place {
+  position: absolute;
+  left: 50%;
+  bottom: calc(8px + var(--sab));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(560px, calc(100vw - 24px));
+  padding: 8px 8px 8px 14px;
+  border-radius: 18px;
+  background: var(--f-panel, rgba(16, 17, 21, 0.94));
+  border: 1px solid var(--f-line, rgba(255, 255, 255, 0.14));
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  z-index: 30;
+}
+.m-place.ok {
+  border-color: rgba(43, 255, 134, 0.45);
+}
+.m-place.bad {
+  border-color: rgba(255, 84, 104, 0.5);
+}
+.m-place-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+.m-place-info > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.m-place-info b {
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m-place-info span {
+  font-size: 12px;
+  color: var(--f-mute, #9aa0ad);
+  line-height: 1.25;
+}
+.m-place.bad .m-place-info span {
+  color: #ff8a98;
+}
+.m-place-cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffd27a;
+  white-space: nowrap;
+}
+.m-place-btns {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+.m-pb {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.07);
+}
+.m-pb.x {
+  background: linear-gradient(180deg, #4a1f27, #33151b);
+  border-color: rgba(255, 84, 104, 0.5);
+}
+.m-pb.ok {
+  background: linear-gradient(180deg, #2fbf71, #1f8f52);
+  border-color: rgba(43, 255, 134, 0.6);
+  box-shadow: 0 0 0 0 rgba(43, 255, 134, 0.4);
+  animation: mOk 1.4s ease-in-out infinite;
+}
+.m-pb.ok:disabled {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.35);
+  animation: none;
+}
+@keyframes mOk {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(43, 255, 134, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(43, 255, 134, 0);
   }
 }

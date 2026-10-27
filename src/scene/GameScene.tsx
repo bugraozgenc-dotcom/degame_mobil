@@ -1,9 +1,10 @@
 import { MapControls } from '@react-three/drei';
+import { TOUCH } from 'three';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { MapControls as MapControlsImpl } from 'three-stdlib';
-import { getEngine, useGame } from '../game/store';
+import { MOBILE_PLACE, getEngine, useGame } from '../game/store';
 import { CoverageOverlay, RiskOverlay } from './Overlays';
 import { DevicesLayer, PlacementGhost } from './DevicesLayer';
 import { MapObjects } from './MapObjects';
@@ -26,6 +27,14 @@ function IsometricCamera() {
   const map = useGame((s) => s.map)!;
   const focus = useGame((s) => s.focus);
   const autoOrbit = useGame((s) => s.autoOrbit);
+  const placingActive = useGame((s) => !!s.placing);
+  const placingFresh = useGame((s) => !!s.placing && !s.placing.hasHover && s.placing.stage === 'position');
+  // mobil: yeni hayalet ekranın ortasında (kamera hedefinde) belirir, sonra parmakla sürüklenir
+  useEffect(() => {
+    if (!MOBILE_PLACE || !placingFresh || !ref.current) return;
+    const t = ref.current.target;
+    useGame.getState().setHover(t.x, t.z);
+  }, [placingFresh]);
   const anim = useRef<{ from: THREE.Vector3; to: THREE.Vector3; d0: number; d1: number; t: number } | null>(null);
   const keys = useRef<Record<string, boolean>>({});
   const { camera, scene: sc3 } = useThree();
@@ -133,6 +142,7 @@ function IsometricCamera() {
       maxPolarAngle={1.08}
       zoomSpeed={1.1}
       panSpeed={1.2}
+      touches={{ ONE: (MOBILE_PLACE && placingActive ? -1 : TOUCH.PAN) as TOUCH, TWO: TOUCH.DOLLY_ROTATE }}
       rotateSpeed={0.6}
       autoRotate={autoOrbit}
       autoRotateSpeed={0.35}

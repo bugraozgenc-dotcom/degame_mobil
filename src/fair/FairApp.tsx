@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { EQUIPMENT } from '../game/config/equipment';
 import { FAIR_LEVELS } from '../game/config/levels';
 import { BessArt, GesArt, HesArt, JesArt, ResArt, TesArt } from '../ui/MainMenu';
-import { getEngine, useGame } from '../game/store';
+import { getEngine, MOBILE_PLACE, useGame } from '../game/store';
 import { performAction } from '../game/systems/IncidentManager';
 import type { Incident } from '../game/systems/entities';
 import { GameScene } from '../scene/GameScene';
@@ -1084,6 +1084,7 @@ function BuildHUD() {
         </div>
       </div>
       <FairInspector />
+      <MobilePlaceBar />
       <BonusPanel />
       <EquipmentShop />
       <button className={`f-go ${allOk && !expo ? 'ready' : ''}`} onClick={startDefense}>
@@ -1101,7 +1102,15 @@ function BuildHUD() {
             <div className="f-kicker">Adım 1 · Kurulum</div>
             <h2>Güvenlik sistemini kur</h2>
             <p>
-              Alttaki menüden bir ekipmana dokun, sonra haritada <b className="g">yeşil</b> bir noktaya dokun. {expo ? 'Stratejini sen kur.' : 'Kameralar en riskli yöne kendiliğinden döner.'}
+              {MOBILE_PLACE ? (
+                <>
+                  Alttaki menüden bir ekipmana dokun; haritada beliren hayaleti <b className="g">parmağınla sürükle</b>, yeşil olunca <b className="g">✓</b> ile onayla. Bullet kameralar çit hattına kendiliğinden yapışır.
+                </>
+              ) : (
+                <>
+                  Alttaki menüden bir ekipmana dokun, sonra haritada <b className="g">yeşil</b> bir noktaya dokun. {expo ? 'Stratejini sen kur.' : 'Kameralar en riskli yöne kendiliğinden döner.'}
+                </>
+              )}
             </p>
             <p>
               <b className="r">Kırmızı</b> alanlar kör nokta: oradan gelen hırsızı sistem göremez. {expo ? 'Süre sınırı yok; hazır olunca "Savunmaya geç".' : `${DIFFS[diffNow].build} saniyen var.`}
@@ -1225,6 +1234,40 @@ function BonusPanel() {
   );
 }
 
+/** mobil yerleştirme çubuğu (Clash of Clans tarzı): sürükle → ✓ onayla / ✗ vazgeç */
+function MobilePlaceBar() {
+  const placing = useGame((s) => s.placing);
+  if (!MOBILE_PLACE || !placing) return null;
+  const spec = EQUIPMENT[placing.type];
+  const g = useGame.getState();
+  const ok = placing.valid && placing.hasHover;
+  return (
+    <div className={`m-place ${ok ? 'ok' : 'bad'}`} role="toolbar" aria-label="Yerleştirme">
+      <div className="m-place-info">
+        <EquipIcon type={placing.type} size={22} />
+        <div>
+          <b>{placing.existingId ? 'Taşınıyor · ' : ''}{spec.name}</b>
+          <span>{ok ? (isFenceOnlyType(placing.type) ? 'Çit hattına yapıştı · sürükleyerek kaydır' : 'Sürükleyerek yerini ayarla') : placing.reason || 'Haritada bir yere sürükle'}</span>
+        </div>
+        {!placing.existingId && (
+          <span className="m-place-cost">
+            <Icon.coin size={14} /> {fmt(spec.cost)}
+          </span>
+        )}
+      </div>
+      <div className="m-place-btns">
+        <button type="button" className="m-pb x" onClick={() => { sfx.cancel(); g.cancelPlace(); }} aria-label="Vazgeç">
+          <Icon.x size={26} />
+        </button>
+        <button type="button" className="m-pb ok" disabled={!ok} onClick={() => g.commitPlace()} aria-label="Yerleştir">
+          <Icon.check size={28} />
+        </button>
+      </div>
+    </div>
+  );
+}
+const isFenceOnlyType = (t: string) => t === 'fixedCam' || t === 'bulletCam';
+
 function FairInspector() {
   const id = useGame((s) => s.selectedDeviceId);
   const devices = useGame((s) => s.devices);
@@ -1242,6 +1285,11 @@ function FairInspector() {
       {spec.rotatable && (
         <button onClick={() => g.rotateBy(d.id, Math.PI / 4)}>
           <Icon.rotate size={18} /> Döndür
+        </button>
+      )}
+      {MOBILE_PLACE && (
+        <button onClick={() => g.moveDevice(d.id)}>
+          <Icon.grid size={18} /> Taşı
         </button>
       )}
       <button className="danger" onClick={() => g.sellDevice(d.id)}>
@@ -2395,8 +2443,9 @@ export function FairApp() {
   }, [touch]);
 
   const scene = useMemo(() => (map ? <GameScene /> : null), [map]);
+  const placingNow = useGame((s) => !!s.placing);
   return (
-    <div className={`game-root fair m phase-${phase}`}>
+    <div className={`game-root fair m phase-${phase} ${placingNow ? 'm-placing' : ''}`}>
       {scene}
       <RotateHint />
       <div className="hud">

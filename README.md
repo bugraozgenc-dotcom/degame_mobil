@@ -27,4 +27,4 @@ Desecure Technology fuar oyununun **telefon tarayıcısında** oynanan sürümü
 | `src/game/config/expo.ts` | Fuar modu kuralları |
 | `src/game/`, `src/scene/` | Simülasyon ve 3D sahne (masaüstü sürümüyle ortak) |
 
-Sürüm: `src/version.ts` (`m1.3`).
+Sürüm: `src/version.ts` (`m1.4`).

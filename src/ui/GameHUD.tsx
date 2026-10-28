@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AimPanel, useAim } from './AimPanel';
 import { EQUIPMENT, SHOP_ORDER, deviceValue, isCameraLike, levelMult, upgradeCost } from '../game/config/equipment';
-import { getEngine, useGame, validatePlacement } from '../game/store';
+import { MOBILE_PLACE, getEngine, useGame, validatePlacement } from '../game/store';
 import { CLASS_LABELS, type Incident } from '../game/systems/entities';
 import { labelTr } from '../game/systems/SimulationEngine';
 import type { ClassLabel, EquipmentType } from '../game/types';
@@ -267,6 +267,22 @@ function LeftPanel() {
 }
 
 // ───────────── mağaza ─────────────
+/** mobil mağaza: kısa adlar (ince tepsi) */
+const SHORT_NAME: Partial<Record<EquipmentType, string>> = {
+  bulletCam: 'Bullet',
+  fixedCam: 'Çift Bullet',
+  thermalCam: 'Termal',
+  ptzCam: 'PTZ',
+  drone: 'Drone',
+  siren: 'Siren',
+  patrol: 'Devriye',
+  light: 'Işık',
+  tower: 'Kule',
+  motion: 'Dedektör',
+  speaker: 'Hoparlör',
+  perimeter: 'Çevre',
+};
+
 export function EquipmentShop() {
   const budget = useGame((s) => s.budget);
   const devices = useGame((s) => s.devices);
@@ -337,7 +353,7 @@ export function EquipmentShop() {
               <div className="si-icon">
                 <EquipIcon type={t} size={24} />
               </div>
-              <div className="si-name">{spec.name}</div>
+              <div className="si-name">{MOBILE_PLACE ? SHORT_NAME[t] ?? spec.name : spec.name}</div>
               <div className="si-cost">
                 <Icon.coin size={11} /> {fmt(spec.cost)}
               </div>

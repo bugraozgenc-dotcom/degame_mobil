@@ -3,11 +3,12 @@ import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { EQUIPMENT, isCameraLike, levelMult } from '../game/config/equipment';
-import { getEngine, useGame } from '../game/store';
+import { MOBILE_PLACE, getEngine, useGame } from '../game/store';
+import { isFenceOnly } from '../game/config/expo';
 import { makeEnv } from '../game/systems/coverage';
 import { computeFan, type Env, perimeterSegment, ptzSweepFov } from '../game/systems/vision';
 import type { Device, EquipmentType, MapData } from '../game/types';
-import { fenceWorld, nearestWalkable } from '../game/world/grid';
+import { fenceNorth, fenceWorld, nearestWalkable } from '../game/world/grid';
 import { ghostBad, ghostOk, noRaycast } from './materials';
 import { DeviceModel } from './SecurityEquipment';
 
@@ -377,6 +378,45 @@ export function DevicesLayer() {
 }
 
 /** Yerleştirme hologramı */
+export /** mobil: yerleştirme sırasında çit hattını parlayan çizgiyle göster (bullet kamera buraya konur) */
+function FenceGuide({ map }: { map: MapData }) {
+  const ref = useRef<THREE.Group>(null);
+  const L = fenceWorld(map);
+  const zN = fenceNorth(map);
+  const y = 0.9;
+  const w = 0.9;
+  useFrame(({ clock }) => {
+    const g = ref.current;
+    if (!g) return;
+    const k = 0.6 + 0.35 * (0.5 + 0.5 * Math.sin(clock.elapsedTime * 3));
+    g.traverse((o) => {
+      const m = (o as THREE.Mesh).material as THREE.MeshBasicMaterial | undefined;
+      if (m && 'opacity' in m) m.opacity = k;
+    });
+  });
+  const segs: [number, number, number, number][] = [
+    [-L, zN, L, zN],
+    [-L, L, L, L],
+    [-L, zN, -L, L],
+    [L, zN, L, L],
+  ];
+  return (
+    <group ref={ref}>
+      {segs.map(([x0, z0, x1, z1], i) => {
+        const len = Math.hypot(x1 - x0, z1 - z0);
+        const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
+        const h = map.heightAt(cx, cz);
+        return (
+          <mesh key={i} position={[cx, h + y, cz]} rotation-y={x0 === x1 ? Math.PI / 2 : 0} raycast={noRaycast}>
+            <boxGeometry args={[len, 0.25, w]} />
+            <meshBasicMaterial color="#2bff86" transparent opacity={0.6} depthWrite={false} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
 export function PlacementGhost() {
   const placing = useGame((s) => s.placing);
   const map = useGame((s) => s.map)!;
@@ -411,6 +451,12 @@ export function PlacementGhost() {
           <ringGeometry args={[fp * 0.7 - 0.06, fp * 0.7 + 0.06, 4, 1, Math.PI / 4]} />
           <meshBasicMaterial color={ok ? '#2bff86' : '#ff2b45'} transparent opacity={0.9} depthWrite={false} />
         </mesh>
+        {MOBILE_PLACE && (
+          <mesh rotation-x={-Math.PI / 2} position={[0, 0.17, 0]} raycast={noRaycast}>
+            <ringGeometry args={[2.4, 3.1, 48]} />
+            <meshBasicMaterial color={ok ? '#2bff86' : '#ff2b45'} transparent opacity={0.85} depthWrite={false} />
+          </mesh>
+        )}
         {placing.stage === 'aim' && (
           <group rotation-y={-placing.yaw}>
             <mesh position={[2.2, 0.3, 0]} rotation-z={-Math.PI / 2} raycast={noRaycast}>
@@ -425,6 +471,7 @@ export function PlacementGhost() {
           </div>
         </Html>
       </group>
+      {MOBILE_PLACE && isFenceOnly(placing.type) && <FenceGuide map={map} />}
       {fan && <FanMesh geom={fan} color={ok ? CONE_COLORS[placing.type] : '#ff2b45'} opacity={0.26} />}
       {fan2 && <FanMesh geom={fan2} color={ok ? CONE_COLORS[placing.type] : '#ff2b45'} opacity={0.26} />}
       {!isCameraLike(placing.type) && ['motion', 'speaker', 'siren', 'light'].includes(placing.type) && (

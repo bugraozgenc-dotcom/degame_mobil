@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { MapControls as MapControlsImpl } from 'three-stdlib';
-import { MOBILE_PLACE, getEngine, useGame } from '../game/store';
+import { MOBILE_PLACE, camBasis, getEngine, useGame } from '../game/store';
 import { CoverageOverlay, RiskOverlay } from './Overlays';
 import { DevicesLayer, PlacementGhost } from './DevicesLayer';
 import { MapObjects } from './MapObjects';
@@ -33,7 +33,11 @@ function IsometricCamera() {
   useEffect(() => {
     if (!MOBILE_PLACE || !placingFresh || !ref.current) return;
     const t = ref.current.target;
-    useGame.getState().setHover(t.x, t.z);
+    const st = useGame.getState();
+    st.setHover(t.x, t.z);
+    // hayalete yakınlaş: çit hücreleri parmakla seçilecek kadar büyük görünsün
+    const p = useGame.getState().placing;
+    if (p && !p.existingId) st.focusOn(p.x, p.z, 44);
   }, [placingFresh]);
   const anim = useRef<{ from: THREE.Vector3; to: THREE.Vector3; d0: number; d1: number; t: number } | null>(null);
   const keys = useRef<Record<string, boolean>>({});
@@ -78,6 +82,19 @@ function IsometricCamera() {
   }, [focus, map, camera]);
 
   useFrame((_, dt) => {
+    {
+      // yer düzleminde kamera ekseni (ok tuşlarıyla kaydırma için)
+      const f = new THREE.Vector3();
+      camera.getWorldDirection(f);
+      f.y = 0;
+      if (f.lengthSq() > 1e-6) {
+        f.normalize();
+        camBasis.fx = f.x;
+        camBasis.fz = f.z;
+        camBasis.rx = -f.z;
+        camBasis.rz = f.x;
+      }
+    }
     const c = ref.current;
     if (!c) return;
     const off = camera.position.clone().sub(c.target);

@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import type { ThreeEvent } from '@react-three/fiber';
+import { useThree, type ThreeEvent } from '@react-three/fiber';
 import type { MapData } from '../game/types';
 import { cellAt, mulberry32 } from '../game/world/grid';
 import { MOBILE_PLACE, useGame } from '../game/store';
@@ -193,11 +193,59 @@ export function Terrain() {
     return { ring, skirt, y };
   }, [map]);
 
+  // ── mobil yerleştirme: parmağın üstünde hayalet, boşta sürükleyince harita kayar ──
+  const { camera, size } = useThree();
+  const getControls = useThree((st) => st.get);
+  const useThreeControls = () => getControls().controls as unknown;
+  const drag = useRef<{ mode: 'ghost' | 'pan' | null; planeY: number; p0: THREE.Vector3; pointerId: number }>({ mode: null, planeY: 0, p0: new THREE.Vector3(), pointerId: -1 });
+  const ray = useMemo(() => new THREE.Raycaster(), []);
+  /** parmağın ~64 px üstündeki arazi noktası (parmak hayaleti örtmesin); bulunamazsa parmağın altı */
+  const liftedPoint = (e: ThreeEvent<PointerEvent>): THREE.Vector3 => {
+    if (e.pointerType !== 'touch') return e.point;
+    const lift = (2 * 64) / size.height;
+    ray.setFromCamera(new THREE.Vector2(e.pointer.x, e.pointer.y + lift), camera);
+    const hit = ray.intersectObject(e.object, false)[0];
+    return hit ? hit.point : e.point;
+  };
+  const onDown = (e: ThreeEvent<PointerEvent>) => {
+    const st = useGame.getState();
+    if (!MOBILE_PLACE || !st.placing || e.pointerType !== 'touch') return;
+    const p = st.placing;
+    const camD = camera.position.distanceTo(e.point);
+    const near = p.hasHover && Math.hypot(e.point.x - p.x, e.point.z - p.z) < camD * 0.1;
+    drag.current = { mode: near ? 'ghost' : 'pan', planeY: e.point.y, p0: e.point.clone(), pointerId: e.pointerId };
+    if (near) {
+      const q = liftedPoint(e);
+      st.setHover(q.x, q.z);
+    }
+  };
   const onMove = (e: ThreeEvent<PointerEvent>) => {
-    useGame.getState().setHover(e.point.x, e.point.z);
+    const st = useGame.getState();
+    const d = drag.current;
+    if (MOBILE_PLACE && st.placing && e.pointerType === 'touch') {
+      if (d.mode === 'ghost' && e.pointerId === d.pointerId) {
+        const q = liftedPoint(e);
+        st.setHover(q.x, q.z);
+      } else if (d.mode === 'pan' && e.pointerId === d.pointerId) {
+        // tutulan nokta parmağın altında kalsın: kamerayı ve hedefi birlikte kaydır
+        const r = e.ray;
+        if (Math.abs(r.direction.y) < 1e-4) return;
+        const t = (d.planeY - r.origin.y) / r.direction.y;
+        if (t <= 0) return;
+        const hit = r.origin.clone().addScaledVector(r.direction, t);
+        const delta = d.p0.clone().sub(hit);
+        delta.y = 0;
+        camera.position.add(delta);
+        const ctrl = (useThreeControls() as { target?: THREE.Vector3 } | null)?.target;
+        if (ctrl) ctrl.add(delta);
+      }
+      return;
+    }
+    st.setHover(e.point.x, e.point.z);
   };
   const onUp = (e: ThreeEvent<PointerEvent>) => {
     const st = useGame.getState();
+    drag.current.mode = null;
     if (MOBILE_PLACE) {
       // mobil: parmak kalkınca hayalet olduğu yerde kalır, ✓ ile onaylanır
       if (st.placing?.fromShopDrag) useGame.setState({ placing: { ...st.placing, fromShopDrag: false } });
@@ -212,6 +260,7 @@ export function Terrain() {
     if (e.delta > 6) return;
     const st = useGame.getState();
     if (st.placing) {
+      // dokunma: hayalet dokunulan yere gider (mobil), tıklama: yerleştirir (masaüstü)
       st.setHover(e.point.x, e.point.z);
       if (!MOBILE_PLACE) st.commitPlace();
       return;
@@ -225,7 +274,7 @@ export function Terrain() {
 
   return (
     <group>
-      <mesh geometry={geom} receiveShadow onPointerMove={onMove} onPointerUp={onUp} onClick={onClick}>
+      <mesh geometry={geom} receiveShadow onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onClick={onClick}>
         <meshStandardMaterial vertexColors roughness={0.95} metalness={0} />
       </mesh>
       {/* ufuk zemini: arazinin dışında kalan halka + kenar eteği (arazinin içini asla örtmez) */}

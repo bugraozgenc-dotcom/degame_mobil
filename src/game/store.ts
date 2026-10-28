@@ -17,6 +17,20 @@ import { IS_MOBILE } from '../scene/gfx';
 /** Mobil (Clash of Clans tarzı) yerleştirme: hayalet parmakla sürüklenir, ✓ ile onaylanır; haritaya dokunmak yerleştirmez */
 export const MOBILE_PLACE = IS_MOBILE;
 
+/** kamera ekseni (yer düzleminde): sağ ve ileri yön; IsometricCamera her karede günceller */
+export const camBasis = { rx: 1, rz: 0, fx: 0, fz: -1 };
+
+/** mobil: hayaleti kameraya göre bir adım kaydır (ok tuşları) */
+export function nudgePlacing(dx: number, dy: number) {
+  const st = useGame.getState();
+  const p = st.placing;
+  if (!p || !st.map) return;
+  const step = 1.5;
+  const x = p.x + (camBasis.rx * dx + camBasis.fx * dy) * step;
+  const z = p.z + (camBasis.rz * dx + camBasis.fz * dy) * step;
+  st.setHover(x, z);
+}
+
 /** çit hattına mıknatıs: en yakın çit hücresinin (nav === 2) merkezi; yoksa null */
 export function snapToFence(map: MapData, x: number, z: number, maxDist = Infinity): { x: number; z: number } | null {
   const N = map.N;

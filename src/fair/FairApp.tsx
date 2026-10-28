@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { EQUIPMENT } from '../game/config/equipment';
 import { FAIR_LEVELS } from '../game/config/levels';
 import { BessArt, GesArt, HesArt, JesArt, ResArt, TesArt } from '../ui/MainMenu';
-import { getEngine, MOBILE_PLACE, useGame } from '../game/store';
+import { getEngine, MOBILE_PLACE, nudgePlacing, useGame } from '../game/store';
 import { performAction } from '../game/systems/IncidentManager';
 import type { Incident } from '../game/systems/entities';
 import { GameScene } from '../scene/GameScene';
@@ -1247,13 +1247,21 @@ function MobilePlaceBar() {
         <EquipIcon type={placing.type} size={22} />
         <div>
           <b>{placing.existingId ? 'Taşınıyor · ' : ''}{spec.name}</b>
-          <span>{ok ? (isFenceOnlyType(placing.type) ? 'Çit hattına yapıştı · sürükleyerek kaydır' : 'Sürükleyerek yerini ayarla') : placing.reason || 'Haritada bir yere sürükle'}</span>
+          <span>{ok ? (isFenceOnlyType(placing.type) ? 'Çit hattında · dokun ya da sürükle, oklarla ince ayar' : 'Dokun ya da sürükle, oklarla ince ayar') : placing.reason || 'Haritada bir yere dokun'}</span>
         </div>
         {!placing.existingId && (
           <span className="m-place-cost">
             <Icon.coin size={14} /> {fmt(spec.cost)}
           </span>
         )}
+      </div>
+      <div className="m-place-nudge" aria-label="Adım adım kaydır">
+        <button type="button" className="m-nb" onClick={() => nudgePlacing(0, 1)} aria-label="Yukarı">▲</button>
+        <div>
+          <button type="button" className="m-nb" onClick={() => nudgePlacing(-1, 0)} aria-label="Sola">◀</button>
+          <button type="button" className="m-nb" onClick={() => nudgePlacing(0, -1)} aria-label="Aşağı">▼</button>
+          <button type="button" className="m-nb" onClick={() => nudgePlacing(1, 0)} aria-label="Sağa">▶</button>
+        </div>
       </div>
       <div className="m-place-btns">
         <button type="button" className="m-pb x" onClick={() => { sfx.cancel(); g.cancelPlace(); }} aria-label="Vazgeç">

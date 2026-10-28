@@ -4,10 +4,12 @@ import App from './App';
 import './fonts.css';
 import './styles.css';
 import { installAudioUnlock } from './audio/sfx';
+import { installPwa } from './pwa';
 
 // Yayın ortamı <html lang> etiketini kaldırabilir; Türkçe büyük harf (i → İ) ve heceleme için dili burada sabitle
 document.documentElement.lang = 'tr';
 installAudioUnlock();
+installPwa();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

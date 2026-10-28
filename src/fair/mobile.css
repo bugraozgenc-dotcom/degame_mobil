@@ -971,3 +971,32 @@ body {
     padding: 0 10px;
   }
 }
+
+/* ana ekrana ekle */
+.m-start-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.m-install.f-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  font-size: 13px;
+  border-radius: 12px;
+}
+.m-howto .m-steps {
+  margin: 4px 0 6px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.m-start .f-modal {
+  z-index: 60;
+}

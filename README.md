@@ -14,7 +14,7 @@ Desecure Technology fuar oyununun **telefon tarayıcısında** oynanan sürümü
 - **Dokunmatik (Clash of Clans tarzı):** ekipmana dokun → hayalet çit hattında belirir → parmakla sürükle (bullet kamera en yakın çit hücresine yapışır) → ✓ onayla / ✗ vazgeç. Hayalet parmağın ~64 px üstünde durur (parmak örtmez); hayalete dokunup sürüklemek onu taşır, boş yere dokunup sürüklemek haritayı kaydırır, boş yere dokunmak hayaleti oraya götürür; çubuktaki oklar bir hücre kaydırır. Hayalet belirince kamera ona yakınlaşır, çit hattı yeşil kılavuzla parlar. Seçili cihazda "Taşı" aynı akışı açar. Yerleştirme dışında tek parmak kaydırır, iki parmak yakınlaştırır. Mantık: `MOBILE_PLACE`, `snapToFence` (`store.ts`), `MobilePlaceBar` (`FairApp.tsx`).
 - **Düzen:** `src/fair/mobile.css` — 1100 px'den dar ya da 560 px'den basık ekranlarda devreye giren mobil katman. Geniş ekranda fuar düzeni olduğu gibi kalır.
 - **Performans:** piksel oranı en çok 1,5 (`GameScene.tsx`), "Grafik: Otomatik" kare hızı düşerse kaliteyi düşürür.
-- **PWA:** `public/manifest.webmanifest` — "Ana ekrana ekle" ile uygulama gibi tam ekran açılır.
+- **PWA:** `public/manifest.webmanifest` (yatay, tam ekran, 192/512 ikon) + `public/sw.js` (küçük service worker) + `src/pwa.ts`. Giriş ekranındaki **"Ana ekrana ekle"** düğmesi Android/Chrome'da tarayıcının kurulum penceresini açar (`beforeinstallprompt`); iOS Safari'de API olmadığı için Paylaş → Ana Ekrana Ekle yönergesi gösterir. Ana ekrandan açılınca düğme gizlenir. İlk dokunuşta ve "Göreve başla"da tam ekran + yatay kilit denenir (Android; iOS tarayıcıda desteklenmez, ana ekrandan açılınca manifest yatay açar).
 
 ## Nerede ne var
 
@@ -27,4 +27,4 @@ Desecure Technology fuar oyununun **telefon tarayıcısında** oynanan sürümü
 | `src/game/config/expo.ts` | Fuar modu kuralları |
 | `src/game/`, `src/scene/` | Simülasyon ve 3D sahne (masaüstü sürümüyle ortak) |
 
-Sürüm: `src/version.ts` (`m1.4`).
+Sürüm: `src/version.ts` (`m1.5`).
